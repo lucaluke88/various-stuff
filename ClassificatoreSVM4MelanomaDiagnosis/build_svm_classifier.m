@@ -1,33 +1,60 @@
-function [svmClassifier,training_set] = build_svm_classifier(input, FIS, FISA)
+function [svmClassifier,best_set] = build_svm_classifier(input, FIS, FISA)
     
-    %   For training the SVM, we select one of
-    %   the F I s (k) maps. This map can be the one revealing the most
-    %	changes in the whole spectrum, i.e the global extrema of F I A s
-    %	[...] .
+    %% Selezioniamo il livello k di FIS più interessante, cioè quello il cui valore di FISA è massimo
     
-    [k,~] = find(FISA==max(FISA(:))); % indice del foglietto di FIS con la varianza massima
+    k = FISA==max(FISA);
     fisK = FIS(:,:,k);
     
-    t = 0.5; % setting parameter, uso il valore citato nel paper
-    T1 = mean2(fisK) + t * var(fisK(:)); %    T1 = mean(FIS) + t var(FIS)
-    T2 = mean2(fisK) - t * var(fisK(:)); %    T2 = mean(FIS) - t var(FIS)
+    %% Impostiamo una soglia per i pixel più significativi che andranno a comporre il nostro training set
+    t = 0.5; % Setting parameter, uso quello del paper
+    T1 = mean2(fisK) + t * var(fisK(:)); %
     
-    %   Afterwards, in the selected map F I s (k), the N nearest
-    %	pixels to the concerned threshold T 1 or T 2 are extracted for
-    %	training the SVM. Among the N training pixels, half are se-
-    %	lected above the threshold and half below the threshold.
+    %% Prendiamo a questo punto N/2 pixels sopra la soglia e N/2 sotto
+    N = 50; % leggo dal paper
+    % ordino in ordine crescente i valori di fisK
     
-    N = 50; % lo imposto io, nel paper non c'è scritto
-    sorted = sort(reshape(fisK(:,:),[],1));
-    sorted_over_t2 = sorted(sorted > T2);
-    sorted_over_t2 = sorted_over_t2(1:N*0.5); % i primi N/2 sopra la soglia T2
-    sorted_under_t2 = sorted(sorted <= T2);
-    x = size(sorted_under_t2);
-    sorted_under_t2 = sorted_under_t2(x - N*0.5:x); % i primi N/2 sotto la soglia T2
+    %% Costruisco il mio 'DB' delle osservazioni, cioè [y,x,fisK(y,x)]
     
-    training_set = zeros(N,2); % riga | colonna | pixel value
-    training_set(1:N*0.5,:) = [sorted_over_t2,1];
-    training_set(N*0.5+1:N) = [sorted_under_t2,0];
+    osservazioni = zeros(size(FIS,1)*size(FIS,2),3);
+    cont = 0;
+    for y=1:size(FIS,1)
+        for x=1:size(FIS,2)
+            cont = cont + 1;
+            osservazioni(cont,:) = [y,x,fisK(y,x)];
+        end
+    end
+    
+    %% Le ordino in senso crescente di fisK
+    osservazioni = sortrows(osservazioni,3);
+    
+    %% Costruisco un training set con questi punti significativi
+    %  Ragionamento: i pixel che vanno da T1 in su appartengono alla regione "anomala"
+    %   Cioè sono quelli col melanoma. Quelli sotto li posso supporre 'sani'.
+    
+    idx =   osservazioni(:,3)>T1;
+    tmp = osservazioni(idx,:);
+    best_set(:,1:N/2) = tmp(:,1:N/2);
+    idx =   osservazioni(:,3)<T1;
+    tmp = osservazioni(idx,:);
+    best_set(:,N/2+1:end) = tmp(:,N/2+1:end);
+    
+    %% Adesso da un training set composto solo dall'informazione di fisK 
+    %  passo ad un training set con le informazioni dei K+1 gruppi 
+    %  (che sono le mie vere features)
+    
+    training_set = zeros(N,3+k); % k+1 gruppi e 2 per le coordinate
+    for k=1:size(training_set,3)
+        training_set(k,:) = [best_set(k,1),best_set(k,2),input(k,:)]; % y|x|riga immagine di input
+    end
+    
+    for i = 1:N/2
+        labels(i) = 'Melanoma';
+    end
+    
+    for i = N/2+1:N
+        labels(i) = 'Sana';
+    end
+    
     % creo il classificatore
-    svmClassifier = svmtrain(training_set(:,1),training_set(:,2));
+    svmClassifier = svmtrain(training_set,labels);
 end

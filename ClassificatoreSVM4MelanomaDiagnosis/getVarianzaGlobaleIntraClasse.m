@@ -9,7 +9,7 @@ function varianza_intraclasse = getVarianzaGlobaleIntraClasse(locs,FISA)
         try
             varianza_intraclasse = varianza_intraclasse + var(FISA(locs(k):locs(k+1)));
         catch e
-            disp (e.getMessage());
+            disp (e.identifier);
         end
         
     end

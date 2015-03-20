@@ -1,10 +1,10 @@
-function [FISA, locs ] = spectral_analysis( input )
+function [FIS, FISA, locs, reducedMultispectralImage ] = spectral_analysis( input )
     
     % Costruisco la mappa delle variazioni
     FIS = buildFIS(input);
     
     % Creo un vettore che contiene la variazione globale per ogni livello
-    FISA = buildFISA(FIS);
+    FISA = buildNormalizedFISA(FIS);
     
     % Posso normalizzare i dati tra 0 e 1, tanto mi serve solo sapere la
     % posizione dei picchi di variazione.
@@ -39,6 +39,22 @@ function [FISA, locs ] = spectral_analysis( input )
     % Spostando i bordi, può capitare che si sovrappongano: togliamo dalla
     % lista dei bordi quelli con la stessa locazione fisica
     locs = unique(locs);
+    
+    % Costruisco una versione con meno livelli dell'immagine di input.
+    % Mi serve nella fase di training.
+    % Ad ogni livello k' associo la media dei valori di quel gruppo
+    
+    reducedMultispectralImage = zeros(size(input,1),size(input,2),size(locs,1)+1);
+    for k=2:size(reducedMultispectralImage,3)+1
+        %--------|-----------|-------------|------------
+        for y=1:size(reducedMultispectralImage,1)
+            for x=1:size(reducedMultispectralImage,2)
+                reducedMultispectralImage(y,x,k) = mean(input(y,x,k-1:k));
+            end
+        end
+        
+    end
+    
 end
 
 
