@@ -1,4 +1,4 @@
-function [ reducedImage ] = spectral_analysis( input )
+function [ reducedImage, FIS, FISA, locs ] = spectral_analysis( input )
     
     % Questa funzione mi deve ridurre il numero di foglietti dell'immagine
     % mantenendo solo quelli più informativi.
@@ -63,7 +63,7 @@ function [ reducedImage ] = spectral_analysis( input )
     end
     locs = unique(locs); % togliamo gli indici duplicati (bordi sovrapposti)
     
-    clear FISA;
+    
     % Ora so come ridurre l'immagine. "Fondo" ogni regione in un singolo
     % foglietto facendo la media dei pixel di medesima posizione (i,j)
     reducedImage = zeros(altezza_input,larghezza_input,size(locs,1));
@@ -79,8 +79,7 @@ function [ reducedImage ] = spectral_analysis( input )
         
     end
     
-    clear locs;
-    clear FISA;
+    
     hold off;
 end
 
