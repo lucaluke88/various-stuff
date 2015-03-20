@@ -6,8 +6,8 @@ function [classified_input] = classificatore( input )
     end
     [reduced_input, fis, fisa, locs] = spectral_analysis(input);
     % costruzione del classificatore
-    classificatoreSVM = build_svm_classifier(reduced_input, fis, fisa, locs);
+    [classificatoreSVM,training_set] = build_svm_classifier(reduced_input, fis, fisa, locs);
     % riduzione ulteriore della dimensionalità dei dati
-    reduced_input = pp_by_KL_distance(reduced_input,classificatoreSVM);
+    reduced_input = pp_by_KL_distance(reduced_input,training_set);
     classified_input = svmclassify(reduced_input,classificatoreSVM);
 end

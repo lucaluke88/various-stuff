@@ -1,4 +1,4 @@
-function [svmClassifier] = build_svm_classifier(input, FIS, FISA)
+function [svmClassifier,training_set] = build_svm_classifier(input, FIS, FISA)
     
     %   For training the SVM, we select one of
     %   the F I s (k) maps. This map can be the one revealing the most

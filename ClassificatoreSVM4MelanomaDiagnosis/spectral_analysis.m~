@@ -1,10 +1,15 @@
-function [FISA, locs ] = spectral_analysis( input )
+function [ FIS, FISA, locs ] = spectral_analysis( input )
     
     % Costruisco la mappa delle variazioni
     FIS = buildFIS(input);
     
     % Creo un vettore che contiene la variazione globale per ogni livello
-    FISA = buildFISA(FIS);
+    
+    FISA = zeros(numero_bande-1,1);
+    for k=1:size(FISA,1)
+        livello = FIS(:,:,k);
+        FISA(k) = sum(livello(:));
+    end
     
     % Posso normalizzare i dati tra 0 e 1, tanto mi serve solo sapere la
     % posizione dei picchi di variazione.
@@ -26,19 +31,14 @@ function [FISA, locs ] = spectral_analysis( input )
     for k=1:N
         % varianza intraclasse globale attuale
         varianza_intraclasse = getVarianzaGlobaleIntraClasse(locs,FISA);
-        % propongo un nuovo partizionamento
-        locs_tmp = locs;
-        j = randi(size(locs,1),1,1); % l'indice della barra che sto per spostare
-        locs_tmp(j) = locs_tmp(randi(size(locs,1),1,1)) + 1; % la sposto a destra di 1 posizione
-        % se la nuova varianza globale è minore di prima confermo il
-        % cambiamento
+        % propongo un nuov
+        locs_tmp = locs; % il nuovo partizionamento proposto
+        locs_tmp(randi(size(locs,1),1,1)) = locs_tmp(randi(size(locs,1),1,1)) + 1;
         if	getVarianzaGlobaleIntraClasse(locs_tmp,FISA) < varianza_intraclasse
             locs = locs_tmp;
         end
     end
-    % Spostando i bordi, può capitare che si sovrappongano: togliamo dalla
-    % lista dei bordi quelli con la stessa locazione fisica
-    locs = unique(locs);
+    locs = unique(locs); % togliamo gli indici duplicati (bordi sovrapposti)
 end
 
 
