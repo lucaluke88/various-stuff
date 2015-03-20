@@ -7,9 +7,9 @@ function [classified_input] = classificatore( input_image )
     [fis, fisa, redMSpectralImage] = spectral_analysis(input_image);
     
     %% Costruzione del classificatore SVM
-    
-    classificatoreSVM = build_svm_classifier(redMSpectralImage, fis, fisa);
-    
+    [classificatoreSVM, training_set] = build_svm_classifier(redMSpectralImage, fis, fisa);
+    %% Projection Pursuit
+    redMSpectralImage = projectionpursuit(redMSpectralImage,training_set);
     % riduzione della dimensionalità dei dati
-    classified_input = svmclassify(reduced_input,classificatoreSVM);
+    classified_input = svmclassify(redMSpectralImage,classificatoreSVM);
 end

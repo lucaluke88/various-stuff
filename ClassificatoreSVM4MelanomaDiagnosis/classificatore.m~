@@ -1,13 +1,17 @@
-function [reduced_input] = classificatore( input )
+function [classified_input] = classificatore( input_image )
     
-    % questa parte è opzionale ! mi serve solo per velocizzare il tutto in
-    % caso non voglia dare l'input io
-    if nargin == 0
-        input = crea_sample_image(30);
-    end
-    reduced_input = spectral_analysis(input);
-    % costruzione del classificatore
-    classificatoreSVM = build_svm_classifier(reduced_input);
-    % riduzione ulteriore della dimensionalità dei dati
-    reduced_input = 
+    %%  Analisi spettrale dell'immagine
+    %   Output: mappa 3d delle variazioni, vettore con le varianze totali per
+    %   livello, bordi dei K gruppi dopo il partizionamento intelligente
+    
+    [fis, fisa, redMSpectralImage] = spectral_analysis(input_image);
+    
+    %% Costruzione del classificatore SVM
+    classificatoreSVM = build_svm_classifier(redMSpectralImage, fis, fisa);
+    %% P
+    redMSpectralImage = projectionpursuit(redMSpectralImage,training_set);
+    
+    
+    % riduzione della dimensionalità dei dati
+    classified_input = svmclassify(reduced_input,classificatoreSVM);
 end

@@ -1,4 +1,4 @@
-function [svmClassifier,best_set] = build_svm_classifier(input, FIS, FISA)
+function [svmClassifier,training_set] = build_svm_classifier(input, FIS, FISA)
     
     %% Selezioniamo il livello k di FIS più interessante, cioè quello il cui valore di FISA è massimo
     
