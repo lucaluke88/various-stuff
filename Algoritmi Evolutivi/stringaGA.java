@@ -1,6 +1,6 @@
 public class stringaGA
 {
-	/*
+	/*  s
 	 * Esempio molto semplice di un algoritmo genetico.
 	 * Dato un insieme di stringhe binarie (dei numeri binari), vogliamo ottenere il massimo numero di 1 presenti.
 	 * Per esempio, se ogni stringa fosse composta da 10 numeri, vorremmo ottenere 10 come massimo.
