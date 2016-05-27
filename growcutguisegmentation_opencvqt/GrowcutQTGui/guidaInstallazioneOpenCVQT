@@ -1,0 +1,15 @@
+Installare opencv2.4.11
+Installare QT 5.5.1 col mingw492_32bit
+Installare tutto in percorsi senza spazi
+
+Settare dentro PATH sia la cartella bin di Cmake che le due bin di mingw32
+dentro la cartella QT
+
+Avviare cmake con mingw32 e impostazioni di default
+Da Cmake levare IPP che dá bug
+
+Configurare finché tutto diventa bianco e poi generare
+nella cartella dei binari fare mingw32-make e poi mingw32-make install
+
+Per sicurezza copiare le dll create in C:\Windows\SysWOW64
+

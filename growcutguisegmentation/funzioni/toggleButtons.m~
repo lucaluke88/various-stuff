@@ -1,0 +1,134 @@
+%% Growcut GUI per uso medico
+% Autore Illuminato Luca Costantino
+%%
+function toggleButtons(asse,pulsante,hObject,handles)
+    
+    try
+        set(handles.segnaoriginale_pellesana,'Enable','off');
+        set(handles.segnaoriginale_pellemalata,'Enable','off');
+        set(handles.segnapellesana_sana,'Enable','off');
+        set(handles.segnapellesana_malata,'Enable','off');
+        set(handles.segnapellemalata_sana,'Enable','off');
+        set(handles.segnapellemalata_malata,'Enable','off');
+        set(handles.cancella_orig,'Enable','off');
+        set(handles.cancella_sana,'Enable','off');
+        set(handles.cancella_malata,'Enable','off');
+    catch
+        disp('problema abilitazione pulsanti marcatura - toggleButtons');
+    end
+    
+    try
+        switch asse
+            case 'originale'
+                switch pulsante
+                    case 'sana'
+                        set(handles.segnaoriginale_pellesana,'Enable','on');
+                        etichetta('sana','immagine_originale',hObject,handles);
+                    case 'malata'
+                        set(handles.segnaoriginale_pellemalata,'Enable','on');
+                        etichetta('malata','immagine_originale',hObject,handles);
+                    case 'cancella'
+                        set(handles.cancella_orig,'Enable','on');
+                        etichetta('cancella','immagine_originale',hObject,handles);
+                end
+            case 'anteprima_sana'
+                set(handles.end_selection,'Enable','on');
+                switch pulsante
+                    case 'sana'
+                        set(handles.segnapellesana_sana,'Enable','on');
+                        etichetta('sana','anteprima_sana',hObject,handles);
+                    case 'malata'
+                        set(handles.segnapellemalata_sana,'Enable','on');
+                        etichetta('malata','anteprima_sana',hObject,handles);
+                    case 'cancella'
+                        set(handles.cancella_sana,'Enable','on');
+                        etichetta('cancella','anteprima_sana',hObject,handles);
+                end
+            case 'anteprima_malata'
+                set(handles.end_selection,'Enable','on');
+                switch pulsante
+                    case 'sana'
+                        set(handles.segnapellesana_malata,'Enable','on');
+                        etichetta('sana','anteprima_malata',hObject,handles);
+                    case 'malata'
+                        set(handles.segnapellemalata_malata,'Enable','on');
+                        etichetta('malata','anteprima_malata',hObject,handles);
+                    case 'cancella'
+                        set(handles.cancella_malata,'Enable','on');
+                        etichetta('cancella','anteprima_malata',hObject,handles);
+                end
+            case 'reset'
+                set(handles.segnaoriginale_pellesana,'Enable','on');
+                set(handles.segnaoriginale_pellemalata,'Enable','on');
+                set(handles.segnapellesana_sana,'Enable','on');
+                set(handles.segnapellesana_malata,'Enable','on');
+                set(handles.segnapellemalata_sana,'Enable','on');
+                set(handles.segnapellemalata_malata,'Enable','on');
+                set(handles.cancella_orig,'Enable','on');
+                set(handles.cancella_sana,'Enable','on');
+                set(handles.cancella_malata,'Enable','on');
+        end
+    catch
+        disp('problema valutazione azioni - toggleButtons');
+    end
+    guidata(hObject, handles);
+end
+
+
+function etichetta(label,where,hObject,handles)
+    try
+        switch where
+            case 'anteprima_malata'
+                figure('name',strcat('Etichettatura della pelle ',label,' sull'' anteprima malata'),'toolbar','figure','menubar','none','CloseRequestFcn',{@my_closereq,hand});
+                imshow(handles.anteprima_malata);
+            case 'anteprima_sana'
+                figure('name',strcat('Etichettatura della pelle ',label,' sull'' anteprima sana'),'toolbar','figure','menubar','none','CloseRequestFcn',@my_closereq);
+                imshow(handles.anteprima_sana);
+            case 'immagine_originale'
+                figure('name',strcat('Etichettatura della pelle ',label,' sull'' anteprima originale'),'toolbar','figure','menubar','none','CloseRequestFcn',@my_closereq);
+                imshow(handles.immagine_originale,'InitialMagnification',100);
+        end
+        
+        while 1
+            roi = imfreehand(gca);
+            mask = roi.createMask();
+            assignin('base','mask',mask);
+            %          binaryImage = abs(1 - binaryImage); % mi viene più semplice colorare la zona
+            switch label
+                case 'sana' % etichettatura normale
+                    result.anteprima_marcature(mask) = 0;
+                    handles.labels_input(mask) = 1;
+                case 'malata' % etichettatura malata
+                    handles.anteprima_marcature(:,:,2) = handles.anteprima_marcature(:,:,2) .* binaryImage;
+                    handles.anteprima_marcature(:,:,3) = handles.anteprima_marcature(:,:,3) .* binaryImage;
+                    handles.labels_input(~binaryImage) = -1;
+                case 'sana_patch' % primo thresholding
+                    handles.anteprima_marcature(:,:,1) = handles.anteprima_marcature(:,:,1) .* binaryImage;
+                    handles.anteprima_marcature(:,:,3) = handles.anteprima_marcature(:,:,3) .* binaryImage;
+                    sogliatura_sana(binaryImage,hObject,handles);
+                case 'cancella'
+                    handles.anteprima_marcature(:,:,1) = handles.immagine_originale(:,:,1) .* binaryImage;
+                    handles.anteprima_marcature(:,:,2) = handles.immagine_originale(:,:,2) .* binaryImage;
+                    handles.anteprima_marcature(:,:,3) = handles.immagine_originale(:,:,3) .* binaryImage;
+                    handles.labels_input(~binaryImage) = 0;
+            end
+            
+            guidata(hObject,handles);
+            imshow(handles.anteprima_marcature,'Parent',handles.axes_im_originale);
+            
+        end
+        
+    catch % ho chiuso l'anteprima grande di marcatura
+        disp('errore');
+    end
+end
+
+function my_closereq(src,callbackdata)
+    
+    robot = java.awt.Robot;
+    robot.keyPress    (java.awt.event.KeyEvent.VK_ESCAPE);
+    robot.keyRelease  (java.awt.event.KeyEvent.VK_ESCAPE);
+    toggleButtons('reset','aa',hObject,handles);
+    
+    disp('closed');
+end

@@ -1,0 +1,620 @@
+#ifndef METODI_H
+#define METODI_H
+
+
+
+
+
+
+//! Valori di default per CVRP
+struct AcoVariabiliType
+{
+	uint16_t minRichiesta = 1;
+	uint16_t maxRichiesta = 100;
+	uint16_t minPeso = 1;
+	uint16_t maxPeso = 100;
+	uint16_t nVertici = 0;
+	uint16_t nAnt = 0;
+	uint16_t capacita = 0;
+    double feromoneIniziale = pow(10,-6);
+    double feromoneMassimo = 1;
+    bool verbose = 1;
+
+    uint16_t Q = 20; //deposition costant
+	double temperatura = 100;
+	double alfa = 1;	// rilevanza del feromone
+	double beta = 2;	// rilevanza della distanza
+	uint16_t d = 1; // numero di best ant che possono depositare nella global update
+	uint16_t f = 2;	// parametro di Savings
+	uint16_t g = 2;	// parametro di Savings
+	uint16_t e = 0; // numero di soluzioni preservate per elitismo
+	double lambda = 0.5;	// rilevanza dell'euristica di Savings
+	double rho = 0.1; // evaporation rate
+	double qzero = 75;	// (0.75) Probabilità che una ant scelga in maniera deterministica il prossimo vertice (exploitation vs exploration)
+	double theta = 0.9; // local decay rate
+
+	uint16_t maxIterazioni = 20;
+} ACOVARS;
+
+struct desiderabilitaType
+{
+    uint16_t vertice;
+    double value;
+};
+
+struct AntType
+{
+	vectorUint tour;
+	vectorUint flagVerticiVisitati;
+
+	vectorUint vertici_visitati;
+	uint16_t caricoCorrente = 0;
+};
+
+//! Legge un numero da console
+/*! @param message testo opzionale da mostrare
+ *	@param ntype il tipo di numero da acquisire
+ */
+auto getNumberFromConsole(string message="", char nType='u') -> unsigned int
+{
+	string input = "";
+	cout << message;
+	getline(cin, input);
+
+	if(nType=='u') // unsigned int
+	{
+		unsigned int numero = 0;
+		while (true)
+		{
+			stringstream myStream(input);
+			if (myStream >> numero)
+				break;
+			else return getNumberFromConsole(message, nType);
+		}
+		return numero;
+	}
+	else if(nType=='d') // double
+	{
+		double numero = 0;
+		while (true)
+		{
+			stringstream myStream(input);
+			if (myStream >> numero)
+				break;
+			cout << "Errore! Inserisci un numero in virgola mobile valido!" << endl;
+		}
+		return numero;
+	}
+	// Se l'utente non inserisce nulla
+    unsigned int fallback = 0;
+    return fallback;
+}
+
+//! Mostra a schermo il logo del programma
+void printLogo()
+{
+	printf("	***********************************		\n");
+	printf("	 	    CVRP/TSP with ACO              	\n");
+	printf("	  di Illuminato Luca Costantino   		\n");
+	printf("	***********************************		\n");
+}
+
+//! Genera un numero a caso
+/*! @param minOffset l'estremo inferiore
+ *	@param maxOffset l'estremo superiore
+ *	@return il numero generato con distribuzione uniforme
+ */
+uint16_t randomNumber(const uint16_t &minOffset, const uint16_t &maxOffset)
+{
+    //the random device that will seed the generator
+    random_device seeder;
+    //then make a mersenne twister engine
+    mt19937 engine(seeder());
+    //then the easy part... the distribution
+    uniform_int_distribution<uint16_t> dist(minOffset, maxOffset);
+    //then just generate the integer like this:
+    return dist(engine);
+}
+
+//! Legge un file e lo memorizza in un vettore di stringhe
+/*!	@param filename il nome del file da leggere
+ *	@return il contenuto del file come vettore di stringhe
+ */
+vector<string> readFile(const string &filename)
+{
+    string line;
+    vector<string> content;
+    ifstream iusrfile;
+    iusrfile.open(filename);
+    if(!iusrfile.is_open())
+        cout << "Errore apertura del file!\n";
+    for(unsigned int i=0; getline( iusrfile, line ); i++)
+        content.push_back(line);
+    iusrfile.close();
+    return content;
+}
+
+void debugPrint(const char* message)
+{
+    if(ACOVARS.verbose)
+		printf(message);
+}
+
+void copiaVettore(vectorUint &origine, vectorUint &destinazione)
+{
+	uint16_t sizeOrig = origine.size();
+	uint16_t sizeDest = destinazione.size();
+	if(sizeOrig<sizeDest)	destinazione.erase(destinazione.begin()+sizeOrig,destinazione.end());
+	else if(sizeOrig>sizeDest)
+	{
+		for(uint16_t i=sizeDest;i<sizeOrig;i++)
+		{
+			destinazione.push_back(0);
+		}
+	}
+	// Ora le due dimensioni sono uguali!
+	for(uint16_t i=0;i<sizeOrig;i++)
+	{
+		destinazione[i] = origine[i];
+	}
+}
+
+double getIncrementoFeromone(const uint16_t &orig, const uint16_t &dest, matrixUint &popolazioneSoluzioni)
+{
+	double incr = 0;
+	for(uint16_t i=0; i<popolazioneSoluzioni.size();i++) // scorro
+	{
+		uint16_t L = popolazioneSoluzioni[i].size();
+        for(uint16_t j=0;j<L-1;j++)
+		{
+            if(popolazioneSoluzioni[i][j]==orig && popolazioneSoluzioni[i][j+1]==dest)
+			{
+				incr += (double) ACOVARS.Q / L;
+			}
+		}
+	}
+	return incr;
+}
+
+void globalUpdate(uint16_t idSolMigliore, vectorUint &costoSoluzioni, matrixUint &popolazioneSoluzioni, matrixDouble &feromoneArchi)
+{
+	if(ACOVARS.verbose) printf("Soluzione migliore %u con costo %u\n",idSolMigliore,costoSoluzioni[idSolMigliore]);
+    // Faccio depositare il feromone
+    uint16_t psiSMsize = popolazioneSoluzioni[idSolMigliore].size();
+	for(uint16_t j=0;j<psiSMsize-1;j++)
+	{
+		uint16_t origine = popolazioneSoluzioni[idSolMigliore][j];
+		uint16_t destinazione = popolazioneSoluzioni[idSolMigliore][j+1];
+		double fInc = getIncrementoFeromone(origine,destinazione,popolazioneSoluzioni);
+		if(ACOVARS.verbose) printf("Feromone su arco (%u,%u) orig: %f ",origine,destinazione,feromoneArchi[origine][destinazione]);
+		feromoneArchi[origine][destinazione] = (1-ACOVARS.rho) * feromoneArchi[origine][destinazione] + ACOVARS.rho * fInc;
+		if(ACOVARS.verbose) printf(" dopo: %f \n",feromoneArchi[origine][destinazione]);
+	}
+}
+
+void updateCacheCostiSoluzioni(matrixUint &popolazioneSoluzioni,matrixUint &pesoArchi,vectorUint &costoSoluzioni)
+{
+	for(uint16_t i=0; i<popolazioneSoluzioni.size(); i++)
+	{
+		// Caching costo soluzione appena generata
+		for(uint16_t j=0;j<popolazioneSoluzioni[i].size()-1;j++)
+		{
+			uint16_t origine = popolazioneSoluzioni[i][j];
+			uint16_t destinazione = popolazioneSoluzioni[i][j+1];
+			costoSoluzioni[i] += pesoArchi[origine][destinazione];
+		}
+	}
+}
+
+void printProposteSoluzioni(matrixUint &popolazioneSoluzioni, vectorUint &costoSoluzioni)
+{
+	printf("Create le seguenti proposte di soluzioni:\n");
+	for(uint16_t i=0; i<popolazioneSoluzioni.size(); i++)
+	{
+		printf("Proposta %u: ",i);
+		for(uint16_t j=0; j<popolazioneSoluzioni[i].size(); j++)
+		{
+            printf("%u-",popolazioneSoluzioni[i][j]);
+		}
+		printf(", di costo %u\n",costoSoluzioni[i]);
+	}
+}
+
+//! Corregge soluzioni unfeasible
+void fixSoluzione(vectorUint &tour, vectorUint &richieste)
+{
+    uint16_t caricoTMP = 0;
+    uint16_t sorgente = 0;
+		if(tour[0]!=sorgente) tour.insert(tour.begin(),0);
+		if(tour[tour.size()-1]!=sorgente) tour.push_back(0);
+    for(uint16_t i=0;i<tour.size();i++)
+		{
+			if(i>0 && tour[i]==tour[i-1]) continue; // salto il cappio
+	    if(caricoTMP + richieste[tour[i]] > ACOVARS.capacita)
+			{
+	            tour.insert(tour.begin()+i,0);
+	            caricoTMP = 0;
+			}
+	        else
+			{
+	            caricoTMP += richieste[tour[i]];
+			}
+		}
+}
+
+//! Se un tour è feasible per CVRP
+bool isFeasible(vectorUint &tour, vectorUint &richieste)
+{
+	uint16_t caricoTmp = 0;
+	for(uint16_t i=0;i<tour.size();i++)
+	{
+		if(tour[i]==0) caricoTmp = 0;
+		else
+		{
+			if(caricoTmp + richieste[i] > ACOVARS.capacita)
+				return 0;
+			else
+				caricoTmp += richieste[i];
+		}
+	}
+	return 1;
+}
+
+//! Fa lo swap di due coppie di archi
+vectorUint TwoOptSwap(const uint16_t &i, const uint16_t &k, vectorUint &tour)
+{
+	vectorUint new_tour(tour.size());
+	// 1. take route[0] to route[i-1] and add them in order to new_route
+	for(uint16_t c = 0; c <= i - 1; ++c )
+		new_tour[c] = tour[c];
+	// 2. take route[i] to route[k] and add them in reverse order to new_route
+	int dec = 0;
+	for (unsigned int c = i; c <= k; ++c , dec++ )
+		new_tour[c] = tour[k - dec];
+	// 3. take route[k+1] to end and add them in order to new_route
+	for (unsigned int c = k + 1; c < tour.size(); ++c )
+		new_tour[c] = tour[c];
+	return new_tour;
+}
+
+//! Rimuove di volta in volta una coppia di archi e ne crea un'altra per vedere se il costo totale si abbassa
+void twoOpt(uint16_t npassi, vectorUint &tour, matrixUint &pesoArchi, vectorUint &richieste)
+{
+	// repeat until no improvement is made
+	uint16_t improve = 0;
+	uint16_t best_distance = 0;
+	// calcolo il costo corrente del tour
+	for(uint16_t i=1;i<tour.size();i++)
+	{
+		best_distance += pesoArchi[tour[i-1]][tour[i]];
+	}
+
+	while ( improve < npassi ) // 20 passi di miglioramenti
+	{
+		for(uint16_t i = 0; i < tour.size() - 1; i++ )
+		{
+			for(uint16_t k = i + 1; k < tour.size(); k++)
+			{
+				vectorUint new_tour = TwoOptSwap( i, k, tour );
+				uint16_t new_distance = 0;
+				for(uint16_t i=1;i<new_tour.size();i++)
+				{
+					new_distance += pesoArchi[new_tour[i-1]][new_tour[i]];
+				}
+				if ((new_distance < best_distance) && isFeasible(new_tour, richieste))
+				{
+						// Improvement found so reset
+						improve = 0;
+						copiaVettore(new_tour,tour);
+						best_distance = new_distance;
+				}
+			}
+		}
+		++improve;
+	}
+}
+
+//! Inizializza la popolazione allo step 0
+void initPopolazioneSoluzioni(matrixUint &popolazioneSoluzioni, vectorUint &richieste,matrixUint &pesoArchi)
+{
+	for(uint16_t i=0; i<ACOVARS.nAnt; i++)
+	{
+		printf("\nCreazione soluzione random %u\n",i);
+		// Tour Random per Ant i
+		vector<uint16_t> tour(ACOVARS.nVertici);
+		iota (begin(tour), end(tour), 0);
+		// RANDOM
+		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+		shuffle (tour.begin(), tour.end(), default_random_engine(seed));
+		twoOpt(20,tour,pesoArchi,richieste);
+		if(!isFeasible(tour,richieste))
+		{
+			if(ACOVARS.verbose) printf("Correzione soluzione %u\n",i);
+			fixSoluzione(tour, richieste);
+		}
+		copiaVettore(tour,popolazioneSoluzioni[i]);
+	}
+}
+
+//! Inizializza un grafo casuale
+void creaGrafoCasuale(vectorUint &richieste, matrixUint &pesoArchi, matrixDouble &feromoneArchi)
+{
+	for(uint16_t i = 0; i < ACOVARS.nVertici ; i++)
+    {
+        // Generazione casuale delle richieste
+        richieste[i] = randomNumber(ACOVARS.minRichiesta,ACOVARS.maxRichiesta);
+        if(ACOVARS.verbose)
+            printf("Assegnata richiesta %u al vertice %u\n",richieste[i],i);
+
+        for(uint16_t j = 0; j < ACOVARS.nVertici ; j++)
+        {
+            if(i==j) // feromone nullo e peso massimo, così i cappi non verranno mai selezionati
+            {
+                pesoArchi[i][j] = numeric_limits<uint16_t>::max();
+                feromoneArchi[i][j] = 0;
+            }
+            else
+            {
+                pesoArchi[i][j] = randomNumber(ACOVARS.minRichiesta,ACOVARS.maxRichiesta);
+                feromoneArchi[i][j] = ACOVARS.feromoneIniziale;
+            }
+
+            if(ACOVARS.verbose)
+                printf("Assegnato peso %u e feromone %f all'arco (%u,%u)\n",pesoArchi[i][j],feromoneArchi[i][j],i,j);
+        }
+    }
+}
+
+bool criteriStop(uint16_t nIter)
+{
+    bool condA = (nIter < ACOVARS.maxIterazioni);
+    return condA;
+}
+
+//! Is the heuristic of Savings where f and g are two parameters.
+double savings(const uint16_t i, const uint16_t j, matrixUint &pesoArchi)
+{
+	uint16_t dist_i_zero = (i!=0)?pesoArchi[i][0]:numeric_limits<uint16_t>::max();
+	uint16_t dist_zero_j = (j!=0)?pesoArchi[0][j]:numeric_limits<uint16_t>::max();
+	uint16_t 	dist_i_j = (i!=j)?pesoArchi[i][j]:numeric_limits<uint16_t>::max();
+	return dist_i_zero + dist_zero_j - ACOVARS.g * dist_i_j + ACOVARS.f * abs(dist_i_zero - dist_zero_j);
+}
+
+void BubbleSort(vector<desiderabilitaType> &desiderabilita)
+{
+   /* elemN è il numero degli elementi del vettore da ordinare */
+	uint16_t elemN = desiderabilita.size();
+	uint16_t alto;
+	for (alto = elemN - 1; alto > 0; alto-- )
+	{
+		for (int i=0; i<alto; i++)
+		{
+			if (desiderabilita[i].value>desiderabilita[i+1].value)
+			{
+				desiderabilitaType tmp = desiderabilita[i];
+				desiderabilita[i] = desiderabilita[i+1];
+				desiderabilita[i+1] = tmp;
+			}
+		}
+	}
+}
+
+
+uint16_t buildDesiderabilita(AntType &ant, vector<desiderabilitaType> &desiderabilita, matrixUint &pesoArchi, matrixDouble &feromoneArchi)
+{
+	uint16_t bestVicino = 0;
+	double bestValue = 0;
+	uint16_t pred = ant.tour.back();
+	double desiderabilitaSum = 0;
+	for(uint16_t i=0;i<ant.flagVerticiVisitati.size();i++)
+	{
+		uint16_t peso = pesoArchi[pred][i];
+		double feromone = feromoneArchi[pred][i];
+		double savValue = savings(pred,i,pesoArchi);
+		double value = pow(feromone,ACOVARS.alfa)+pow(1/peso,ACOVARS.beta)+pow(savValue,ACOVARS.lambda);
+		// Copio nell'array
+		desiderabilita[i].value = value;
+		desiderabilita[i].vertice = i;
+		// Restituisco il miglior valore
+		if(ant.flagVerticiVisitati[i]==0 && value>bestValue)
+		{
+			bestVicino = i;
+			bestValue = value;
+		}
+		if(ant.flagVerticiVisitati[i]==1)
+		{
+			desiderabilita[i].value = 0;
+		}
+		desiderabilitaSum += desiderabilita[i].value;
+	}
+	BubbleSort(desiderabilita); // ordino l'array in ordine crescente di valore senza perdere i riferimenti ai vertici
+	// Normalizzo i valori
+    for(uint16_t i=0;i<desiderabilita.size();i++)
+	{
+        desiderabilita[i].value = (double) (desiderabilita[i].value / desiderabilitaSum)*100;
+	}
+	return bestVicino;
+}
+
+uint16_t getProssimoVertice(AntType &ant, matrixUint &pesoArchi, matrixDouble &feromoneArchi)
+{
+	// l'ant decide il prossimo vicino in modo o probabilistico o in modo determininistico
+	uint16_t q = randomNumber(1,100);
+	// Costruisco la desiderabilità dei vicini
+    vector<desiderabilitaType> desiderabilita(ACOVARS.nVertici);
+	uint16_t bestVicino = buildDesiderabilita(ant, desiderabilita, pesoArchi, feromoneArchi);
+
+
+	if(q<= ACOVARS.qzero)
+	{
+		// vado di exploitation, restituisco il miglior vicino per distanza, feromone e savings
+		return bestVicino;
+	}
+	else
+	{
+		// vado di exploration, ogni vertice non visitato ha una possibilità di essere scelto come prossimo vertice
+		bestVicino = randomNumber(1,100);
+		for(uint16_t i=0;i<desiderabilita.size()-1;i++)
+		{
+            if(bestVicino<desiderabilita[i].value)
+				return desiderabilita[i].vertice;
+		}
+		return desiderabilita[desiderabilita.size()-1].vertice;
+	}
+}
+
+uint16_t antWalk(AntType &ant, matrixUint &pesoArchi, matrixDouble &feromoneArchi, vectorUint &richieste)
+{
+    // L'ant deve ripartire da zero, quindi le cancello la memoria interna
+    debugPrint("Ant cancella memoria interna\n");
+    ant.tour.erase(ant.tour.begin(),ant.tour.end()); // cancello il vecchio tour
+    // cancello la memoria dei vertici già visitati
+    if(ACOVARS.verbose) printf("Ant cancella vertici visitati\n");
+    uint16_t sizeFlag = ant.flagVerticiVisitati.size();
+    // Inizializzo le variabili interne delle ant
+	if(sizeFlag==0)
+	{
+        for(uint16_t i=0;i<ACOVARS.nVertici;i++)
+		{
+            ant.flagVerticiVisitati.push_back(0);
+		}
+	}
+	debugPrint("Ant comincia ad esplorare\n");
+    uint16_t pesoTotale = 0;
+    // L'ant parte dalla sorgente
+    ant.tour.push_back(0);
+    uint16_t verticiVisitati = 0;
+    while(verticiVisitati<ACOVARS.nVertici-1) // la sorgente non viene inserita tra i vertici visitati
+	{
+		if(ACOVARS.verbose) printf("Ant %p ha vistato %u vertici\n",(void*) &ant,verticiVisitati);
+    	uint16_t vicino = getProssimoVertice(ant,pesoArchi,feromoneArchi);
+		if(vicino!=0)
+		{
+			++verticiVisitati;
+			ant.flagVerticiVisitati[vicino] = 1;
+		}
+		if(ant.caricoCorrente+richieste[vicino] > ACOVARS.capacita)
+		{
+			ant.tour.push_back(0);
+			ant.caricoCorrente = 0;
+			pesoTotale += pesoArchi[ant.tour.back()][0];
+			// local update del feromone
+			feromoneArchi[ant.tour.back()][0] = (1-ACOVARS.rho) * feromoneArchi[ant.tour.back()][0] + ACOVARS.rho * ACOVARS.feromoneIniziale;
+		}
+		ant.caricoCorrente += richieste[vicino];
+		ant.tour.push_back(vicino);
+		pesoTotale += pesoArchi[ant.tour.back()][vicino];
+	}
+	return pesoTotale;
+}
+
+void displacementMT(vectorUint &tour, vectorUint &dispTour, uint16_t index, uint16_t fine)
+{
+	for(uint16_t i=0;i<index;i++)
+		dispTour[i] = tour[i];
+	for(uint16_t i=index;i<fine;i++)
+	{
+		dispTour[i] = tour[i+fine];
+	}
+	for(uint16_t i=fine;i<dispTour.size();i++)
+	{
+		dispTour[i] = tour[i+index];
+	}
+}
+
+
+
+void aggiornaPopolazione(matrixUint &popolazioneSoluzioni, matrixUint &metaPopolazione, matrixUint &pesoArchi)
+{
+	debugPrint("Aggiornamento popolazione\n");
+	vectorUint costiSoluzioneAux;
+	if(ACOVARS.verbose) printf("Aggiungo costi pop principale\n");
+	for(uint16_t i=0;i<popolazioneSoluzioni.size();i++)
+	{
+		uint16_t costo = 0;
+		for(uint16_t j=1;j<popolazioneSoluzioni[i].size();j++)
+		{
+			uint16_t origine = popolazioneSoluzioni[i][j-1];
+			uint16_t destinazione = popolazioneSoluzioni[i][j];
+			costo += pesoArchi[origine][destinazione];
+		}
+		costiSoluzioneAux.push_back(costo);
+	}
+	debugPrint("Aggiungo costi pop secondaria\n");
+	for(uint16_t i=0;i<metaPopolazione.size();i++)
+	{
+		uint16_t costo = 0;
+		for(uint16_t j=1;j<metaPopolazione[i].size();j++)
+		{
+			uint16_t origine = metaPopolazione[i][j-1];
+			uint16_t destinazione = metaPopolazione[i][j];
+			costo += pesoArchi[origine][destinazione];
+		}
+		costiSoluzioneAux.push_back(costo);
+	}
+	// Creazione nuova popolazione
+	debugPrint("Creo nuova popolazione\n");
+	matrixUint nuovaPopolazione(popolazioneSoluzioni.size(), vectorUint(popolazioneSoluzioni.size()));
+	for(uint16_t i=0;i<popolazioneSoluzioni.size();i++)
+	{
+		uint16_t currentMin = distance(costiSoluzioneAux.begin(),min_element(costiSoluzioneAux.begin(),costiSoluzioneAux.end()));
+		if(currentMin>=popolazioneSoluzioni.size())
+			nuovaPopolazione[i] = metaPopolazione[currentMin - popolazioneSoluzioni.size()];
+		else
+			nuovaPopolazione[i] = popolazioneSoluzioni[currentMin];
+		costiSoluzioneAux[currentMin] = numeric_limits<uint16_t>::max();
+	}
+
+	// P <- nuovaPop
+	for(uint16_t i=0;i<popolazioneSoluzioni.size();i++)
+	{
+		copiaVettore(popolazioneSoluzioni[i],nuovaPopolazione[i]);
+	}
+}
+
+void randomShuffle(vectorUint &tour,uint16_t inizio, uint16_t fine, vectorUint &richieste)
+{
+	unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    shuffle (tour.begin()+inizio, tour.begin()+fine, default_random_engine(seed));
+    if(!isFeasible(tour,richieste)) fixSoluzione(tour, richieste);
+}
+
+void localSearch(matrixUint &popolazioneSoluzioni, uint16_t idBestSol, matrixUint &pesoArchi, vectorUint &richieste)
+{
+	if(ACOVARS.verbose) printf("Local search\n");
+	// operatori di muta
+	uint16_t sizeMetaPopolazione = 6;
+	matrixUint metaPopolazione(sizeMetaPopolazione, vectorUint(sizeMetaPopolazione));
+	for(uint16_t i=0;i<sizeMetaPopolazione;i++)
+	{
+		uint16_t metodo = randomNumber(1,3);
+		metaPopolazione[i].erase(metaPopolazione[i].begin(),metaPopolazione[i].end());
+		switch(metodo)
+		{
+			case(1): // DisplacementMT
+			{
+				vectorUint dispTour(popolazioneSoluzioni[idBestSol].size());
+				displacementMT(popolazioneSoluzioni[idBestSol],dispTour,4,8);
+				copiaVettore(dispTour,metaPopolazione[i]);
+			}
+			case(2): // 2Opt
+			{
+			    vectorUint twoOptTour(popolazioneSoluzioni[idBestSol].size());
+			    copiaVettore(popolazioneSoluzioni[idBestSol],twoOptTour);
+				twoOpt(20, twoOptTour, pesoArchi, richieste);
+				copiaVettore(twoOptTour,metaPopolazione[i]);
+			}
+			case(3): // RandomShuffle
+			{
+				vectorUint randomShTour(popolazioneSoluzioni[idBestSol].size());
+			    copiaVettore(popolazioneSoluzioni[idBestSol],randomShTour);
+				randomShuffle(popolazioneSoluzioni[idBestSol],3,6,richieste);
+				copiaVettore(randomShTour,metaPopolazione[i]);
+			}
+		}
+	}
+	// Aggiorniamo P <-- P U MetaPop
+	aggiornaPopolazione(popolazioneSoluzioni, metaPopolazione,pesoArchi);
+}
+
+#endif // METODI_H

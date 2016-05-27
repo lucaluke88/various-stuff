@@ -1,0 +1,45 @@
+% ========================================================================
+% FSIM Index with automatic downsampling, Version 1.0
+% Copyright(c) 2010 Lin ZHANG, Lei Zhang, Xuanqin Mou and David Zhang
+% All Rights Reserved.
+%
+% ----------------------------------------------------------------------
+% Permission to use, copy, or modify this software and its documentation
+% for educational and research purposes only and without fee is here
+% granted, provided that this copyright notice and the original authors'
+% names appear on all copies and supporting documentation. This program
+% shall not be used, rewritten, or adapted as the basis of a commercial
+% software or hardware product without first obtaining permission of the
+% authors. The authors make no representations about the suitability of
+% this software for any purpose. It is provided "as is" without express
+% or implied warranty.
+%----------------------------------------------------------------------
+%
+% This is an implementation of the algorithm for calculating the
+% Feature SIMilarity (FSIM) index between two images.
+%
+% Please refer to the following paper
+%
+% Lin Zhang, Lei Zhang, Xuanqin Mou, and David Zhang,"FSIM: a feature similarity
+% index for image qualtiy assessment", IEEE Transactions on Image Processing, vol. 20, no. 8, pp. 2378-2386, 2011.
+% 
+%----------------------------------------------------------------------
+%
+%Input : (1) imageRef: the first image being compared
+%        (2) imageDis: the second image being compared
+%
+%Output: (1) FSIM: is the similarty score calculated using FSIM algorithm. FSIM
+%	     only considers the luminance component of images. For colorful images, 
+%            they will be converted to the grayscale at first.
+%        (2) FSIMc: is the similarity score calculated using FSIMc algorithm. FSIMc
+%            considers both the grayscale and the color information.
+%Note: For grayscale images, the returned FSIM and FSIMc are the same.
+%        
+%-----------------------------------------------------------------------
+%
+%Usage:
+%Given 2 test images img1 and img2. For gray-scale images, their dynamic range should be 0-255.
+%For colorful images, the dynamic range of each color channel should be 0-255.
+%
+%[FSIM, FSIMc] = FeatureSIM(img1, img2);
+%-----------------------------------------------------------------------

@@ -1,0 +1,1 @@
+Doppia soglia: i valori inferiori al minimo diventano neri, quelli tra il minimo e il massimo diventano grigi e quelli superiori al massimo diventano bianchi.
