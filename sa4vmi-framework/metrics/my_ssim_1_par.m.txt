@@ -1,1 +1,0 @@
-Uguale alla metrica my_ssim, mostra a console il parametro extra inserito.

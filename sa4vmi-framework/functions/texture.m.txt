@@ -1,1 +1,0 @@
-This example shows how to use texture segmentation to identify regions based on their texture. Your goal is to segment two kinds of fabric in an image using texture filters.

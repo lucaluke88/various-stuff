@@ -1,3 +1,0 @@
-http://stackoverflow.com/questions/5475815/comparing-two-image-using-histogram
-
- want to find the histogram of two images and find the similarity using Euclidean distance. 
