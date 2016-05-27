@@ -1,0 +1,45 @@
+
+void ClickableLabel::mouseMoveEvent(QMouseEvent* event)
+{
+    // mouse clicked
+    emit clicked();
+
+    // COORDINATE PREVIEW
+    int pos_x = event->x();
+    int pos_y = event->y();
+    //    cout << "Scaled : " << pos_y << "," << pos_x << endl;
+
+    // COORDINATE REALI
+    pos_x = (int) pos_x * GrowcutGUI::getScaleFactorCols();
+    pos_y = (int) pos_y * GrowcutGUI::getScaleFactorRows();
+    //    cout << "Real : " << pos_y << "," << pos_x << endl;
+
+    // aggiungiamo i punti alla polilinea
+    polilinea.push_back(Point(pos_y,pos_x));
+    const cv::Point *pts = (const cv::Point*) Mat(polilinea).data;
+    int npts = Mat(polilinea).rows;
+
+    // quale anteprima dobbiamo modificare
+
+
+    QImage picture = this->pixmap()->toImage();
+    tmp_img = image2Mat(picture, CV_8UC3, MCO_RGB);
+
+    //    if(this->objectName().toStdString()=="anteprima_originale")
+    //        tmp_img = image2Mat(picture, CV_8UC3, MCO_RGB);
+    //    else if(this->objectName().toStdString()=="anteprima_sana")
+    //        tmp_img = image2Mat(picture, CV_8UC3, MCO_RGB);
+    //    else if(this->objectName().toStdString()=="anteprima_malata")
+    //        tmp_img = image2Mat(picture, CV_8UC3, MCO_RGB);
+
+    polylines(tmp_img, &pts,&npts, 1, false, Scalar(0,255,0), 12, CV_AA, 0);
+
+
+}
+
+void ClickableLabel::mouseReleaseEvent(QMouseEvent* event)
+{
+    namedWindow("Polygon Test", 0);
+    imshow( "Polygon Test", tmp_img );
+    polilinea.clear();
+}

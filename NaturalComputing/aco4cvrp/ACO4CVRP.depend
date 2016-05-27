@@ -1,0 +1,252 @@
+# depslib dependency file v1.0
+1461248014 source:/home/rev_dott_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/main.cpp
+	"aco.h"
+
+1460990026 /home/rev_dott_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/metodi.h
+	<chrono>
+	<iostream>
+	<math.h>
+	<random>
+	<algorithm>
+	<stdio.h>
+	<string>
+	<sstream>
+	<vector>
+
+1461251618 
+
+1461251189 /home/rev_dott_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/aco.h
+	"utils.h"
+
+1461152330 /home/rev_dott_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/utils.h
+	"strutture.h"
+
+1461155930 .h"
+
+1461248018 /home/rev_dott_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1461248014 source:/home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/main.cpp
+	"aco.h"
+
+1461254407 /home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/aco.h
+	"utils.h"
+
+1461152330 /home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/utils.h
+	"strutture.h"
+
+1461248018 /home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1461251614 source:e:\lucaluke\documenti\computazionenaturaleprogetto\aco4cvrp\main.cpp
+	"aco.h"
+
+1461258007 e:\lucaluke\documenti\computazionenaturaleprogetto\aco4cvrp\aco.h
+	"utils.h"
+
+1461155930 e:\lucaluke\documenti\computazionenaturaleprogetto\aco4cvrp\utils.h
+	"strutture.h"
+
+1461251618 e:\lucaluke\documenti\computazionenaturaleprogetto\aco4cvrp\strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1461248014 source:/home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/main.cpp
+	"aco.h"
+
+1461254407 /home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/aco.h
+	"utils.h"
+
+1461152330 /home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/utils.h
+	"strutture.h"
+
+1461248018 /home/lucaluke/Documenti/ComputazioneNaturaleProgetto/ACO4CVRP/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1461948298 source:/home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/main.cpp
+	"aco.h"
+	<math.h>
+
+1461948343 /home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/aco.h
+	"utils.h"
+
+1461409918 /home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/utils.h
+	"strutture.h"
+
+1461926384 /home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1462549725 source:/home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/main.cpp
+	"aco.h"
+	<math.h>
+
+1462549684 /home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/aco.h
+	"utils.h"
+
+1461409918 /home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/utils.h
+	"strutture.h"
+
+1462538665 /home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1463152793 source:/home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP 6 mag/main.cpp
+	"aco.h"
+	<math.h>
+
+1462974771 /home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP 6 mag/aco.h
+	"utils.h"
+
+1462970982 /home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP 6 mag/utils.h
+	"strutture.h"
+
+1462974820 /home/rev_lucaluke/Dropbox/ComputazioneNaturaleProgetto/ACO4CVRP 6 mag/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+
+1463160373 source:/home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/sorgente/main.cpp
+	"aco.h"
+	<math.h>
+
+1462974771 /home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/sorgente/aco.h
+	"utils.h"
+
+1462970982 /home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/sorgente/utils.h
+	"strutture.h"
+
+1462974820 /home/lucaluke/Dropbox/ComputazioneNaturaleProgetto/sorgente/strutture.h
+	<algorithm>
+	<boost/cstdlib.hpp>
+	<boost/iterator/counting_iterator.hpp>
+	<boost/iterator/indirect_iterator.hpp>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/variate_generator.hpp>
+	<chrono>
+	<ctime>
+	<iostream>
+	<fstream>
+	<math.h>
+	<random>
+	<sstream>
+	<stdio.h>
+	<string>
+	<thread>
+	<vector>
+

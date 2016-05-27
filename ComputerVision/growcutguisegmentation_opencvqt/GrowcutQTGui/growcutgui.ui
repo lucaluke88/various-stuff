@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GrowcutGUI</class>
+ <widget class="QMainWindow" name="GrowcutGUI">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1190</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1190</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>GrowcutGUI - Luca Costantino (Università di Catania)</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QDateEdit" name="dateEdit">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>80</y>
+      <width>201</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="displayFormat">
+     <string>dd/MM/yyyy</string>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>10</y>
+      <width>201</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Nome e Cognome del paziente</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>60</y>
+      <width>201</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Data</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="patologiaLista">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>110</y>
+      <width>201</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Elenco delle patologie con cui si può classificare un'immagine</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAsNeeded</enum>
+    </property>
+    <item>
+     <property name="text">
+      <string>Acne - Gravità 1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Acne - Gravità 2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Acne - Gravità 3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Dermatite - Gravità 1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Dermatite - Gravità 2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Dermatite - Gravità 3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Dermatite - Gravità 4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Ustione - Primo grado</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Ustione - Secondo grado</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Ustione - Terzo grado</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLineEdit" name="nomecognome_edit">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>30</y>
+      <width>201</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="confermaDatibutton">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>190</y>
+      <width>201</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Conferma</string>
+    </property>
+   </widget>
+   <widget class="ClickableLabel" name="anteprima_originale">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>301</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="ClickableLabel" name="anteprima_sana">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>40</y>
+      <width>301</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="ClickableLabel" name="anteprima_malata">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>40</y>
+      <width>301</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="immagine_info_label">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>260</y>
+      <width>201</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>220</y>
+      <width>201</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Nome del file</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="istruzioni_label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>921</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1190</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuApri">
+    <property name="title">
+     <string>Apri...</string>
+    </property>
+    <addaction name="actionApri_immagine"/>
+    <addaction name="actionApri_lavoro"/>
+   </widget>
+   <widget class="QMenu" name="menuModifica">
+    <property name="title">
+     <string>Modifica</string>
+    </property>
+    <addaction name="actionSogliatura_preliminare"/>
+    <addaction name="actionRitaglia_immagine"/>
+   </widget>
+   <widget class="QMenu" name="menuSegmenta">
+    <property name="title">
+     <string>Segmenta</string>
+    </property>
+    <addaction name="actionSegmenta_ora"/>
+   </widget>
+   <widget class="QMenu" name="menuGestione_lavoro">
+    <property name="title">
+     <string>Gestione lavoro</string>
+    </property>
+    <addaction name="actionSalva_lavoro_rapidamente"/>
+    <addaction name="actionSalva_lavoro_con_nome"/>
+    <addaction name="separator"/>
+    <addaction name="actionAnnulla_lavoro_e_ripristina"/>
+   </widget>
+   <addaction name="menuApri"/>
+   <addaction name="menuModifica"/>
+   <addaction name="menuSegmenta"/>
+   <addaction name="menuGestione_lavoro"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionApri_immagine">
+   <property name="text">
+    <string>Apri immagine [A]</string>
+   </property>
+   <property name="toolTip">
+    <string>si può aprire un'immagine anche col tasto A</string>
+   </property>
+  </action>
+  <action name="actionApri_lavoro">
+   <property name="text">
+    <string>Apri lavoro</string>
+   </property>
+  </action>
+  <action name="actionSogliatura_preliminare">
+   <property name="text">
+    <string>Sogliatura preliminare</string>
+   </property>
+  </action>
+  <action name="actionRitaglia_immagine">
+   <property name="text">
+    <string>Ritaglia immagine</string>
+   </property>
+  </action>
+  <action name="actionSegmenta_ora">
+   <property name="text">
+    <string>Segmenta ora</string>
+   </property>
+  </action>
+  <action name="actionSalva_lavoro_rapidamente">
+   <property name="text">
+    <string>Salva lavoro rapidamente</string>
+   </property>
+  </action>
+  <action name="actionSalva_lavoro_con_nome">
+   <property name="text">
+    <string>Salva lavoro con nome</string>
+   </property>
+  </action>
+  <action name="actionAnnulla_lavoro_e_ripristina">
+   <property name="text">
+    <string>Annulla lavoro corrente</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>clickablelabel.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
